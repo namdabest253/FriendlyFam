@@ -5,9 +5,13 @@ It contains the definition of routes and views for the application.
 from flask import Flask, render_template, request, redirect, session
 import mysql.connector
 import gunicorn
+#from flask_wtf.csrf import CSRFPROTECT
 
+app = Flask(__name__)
 app.secret_key = "My Secret"
 
+#csrf = CSRFProtect()
+#csrf.innit_app(app)
 
 db = mysql.connector.connect(
     host="us-cdbr-east-03.cleardb.com",
@@ -60,6 +64,34 @@ def myEvents():
         return render_template("myevents.html", user = session["username"])
     else:
         return render_template("myevents.html", user-session["username"])
+
+@app.route("/cancel/<int:id>")
+def editEvent(id):
+    sql = "UPDATE events SET status = 'Cancelled' WHERE id = %s"
+    values = (id,)
+    cursor.execute(sql, values)
+    db.commit()
+    return redirect("/myevents")
+
+@app.route("/update/<int:id>", methods = ["GET", "POST"])
+def updateEvent(id):
+    sql = "SELECT id, host, description, day, time, status FROM events WHERE id = %s"
+    values = (id,)
+    cursor.execute(sql, values)
+    result = cursor.fetchone()
+    if request.method == "POST":
+        username = session["username"]
+        description= request.form.get("description")
+        day = request.form.get("day")
+        time = request.form.get("time")
+        status = request.form.get("status")
+        sql = "UPDATE events SET description = %s, day = %s, time = %s, status = %s WHERE id = %s"
+        values = (description, day, time, status, id)
+        cursor.execute(sql, values)
+        db.commit()
+        return redirect("/myevents")
+    else:
+        return render_template("edit.html", user = session["username"], event = result)
 
 
 
