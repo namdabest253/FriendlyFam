@@ -15,9 +15,9 @@ app.secret_key = "My Secret"
 
 db = mysql.connector.connect(
     host="us-cdbr-east-03.cleardb.com",
-    user="b5af5cea72b983",
-    password="78f442bb",
-    database="heroku_c3809d5db01c0cd"
+    user="b9f64af02f7048",
+    password="d2e56239",
+    database="heroku_85063ffbb3a4c24"
     )
 
 cursor = db.cursor()
