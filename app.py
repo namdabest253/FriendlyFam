@@ -30,7 +30,7 @@ db.commit
 @app.route('/')
 def index():
     if "username" in session:
-        sql = "SELECT host, description, day, time, status, FROM events"
+        sql = "SELECT host, description, day, time, status FROM events"
         cursor.execute(sql)
         results = cursor.fetchall()
         if len(results) == 0:
