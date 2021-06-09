@@ -40,7 +40,7 @@ def index():
     else:
         return render_template("index.html")
 
-@app.route("/signup", method=["POST", "Get"])
+@app.route("/signup", method=["GET", "POST"])
 def signup():
     if request.method == "POST":
         username = request.form.get("username")
