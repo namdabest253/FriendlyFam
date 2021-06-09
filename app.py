@@ -5,15 +5,21 @@ It contains the definition of routes and views for the application.
 from flask import Flask, render_template, request, redirect, session
 import mysql.connector
 import gunicorn
+#from flask_wtf.csrf import CSRFPROTECT
 
+app = Flask(__name__)
 app.secret_key = "My Secret"
 
+#csrf = CSRFProtect()
+#csrf.innit_app(app)
+
+#mysql://b9f64af02f7048:d2e56239@us-cdbr-east-03.cleardb.com/heroku_85063ffbb3a4c24?reconnect=true
 
 db = mysql.connector.connect(
     host="us-cdbr-east-03.cleardb.com",
-    user="b5af5cea72b983",
-    password="78f442bb",
-    database="heroku_c3809d5db01c0cd"
+    user="b9f64af02f7048",
+    password="d2e56239",
+    database="heroku_85063ffbb3a4c24"
     )
 
 cursor = db.cursor()
@@ -23,10 +29,10 @@ cursor.execute("CREATE TABLE IF NOT EXISTS users (id INT AUTO_INCREMENT PRIMARY 
 db.commit
 
 
-@app.route('/')
+@app.route("/")
 def index():
     if "username" in session:
-        sql = "SELECT host, description, day, time, status, FROM events"
+        sql = "SELECT host, description, day, time, status FROM events"
         cursor.execute(sql)
         results = cursor.fetchall()
         if len(results) == 0:
@@ -60,6 +66,34 @@ def myEvents():
         return render_template("myevents.html", user = session["username"])
     else:
         return render_template("myevents.html", user-session["username"])
+
+@app.route("/cancel/<int:id>")
+def editEvent(id):
+    sql = "UPDATE events SET status = 'Cancelled' WHERE id = %s"
+    values = (id,)
+    cursor.execute(sql, values)
+    db.commit()
+    return redirect("/myevents")
+
+@app.route("/update/<int:id>", methods = ["GET", "POST"])
+def updateEvent(id):
+    sql = "SELECT id, host, description, day, time, status FROM events WHERE id = %s"
+    values = (id,)
+    cursor.execute(sql, values)
+    result = cursor.fetchone()
+    if request.method == "POST":
+        username = session["username"]
+        description= request.form.get("description")
+        day = request.form.get("day")
+        time = request.form.get("time")
+        status = request.form.get("status")
+        sql = "UPDATE events SET description = %s, day = %s, time = %s, status = %s WHERE id = %s"
+        values = (description, day, time, status, id)
+        cursor.execute(sql, values)
+        db.commit()
+        return redirect("/myevents")
+    else:
+        return render_template("edit.html", user = session["username"], event = result)
 
 
 

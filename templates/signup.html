@@ -41,6 +41,7 @@
                 </div>
                 <hr />
                 <p class="text-center">Do you have an account already? <br /><a href="/login"> Login</a></p>
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
 
             </form>
         </div>
