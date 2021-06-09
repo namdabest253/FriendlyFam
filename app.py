@@ -13,8 +13,6 @@ app.secret_key = "My Secret"
 #csrf = CSRFProtect()
 #csrf.innit_app(app)
 
-#mysql://b9f64af02f7048:d2e56239@us-cdbr-east-03.cleardb.com/heroku_85063ffbb3a4c24?reconnect=true
-
 db = mysql.connector.connect(
     host="us-cdbr-east-03.cleardb.com",
     user="b9f64af02f7048",
@@ -29,7 +27,7 @@ cursor.execute("CREATE TABLE IF NOT EXISTS users (id INT AUTO_INCREMENT PRIMARY 
 db.commit
 
 
-@app.route("/")
+@app.route('/')
 def index():
     if "username" in session:
         sql = "SELECT host, description, day, time, status FROM events"
