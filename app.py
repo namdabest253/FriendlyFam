@@ -40,7 +40,7 @@ def index():
     else:
         return render_template("index.html")
 
-@app.route("/signup", method=["GET", "POST"])
+@app.route("/signup", methods=["GET", "POST"])
 def signup():
     if request.method == "POST":
         username = request.form.get("username")
@@ -48,12 +48,17 @@ def signup():
         confirm_password = request.form["confirm-password"]
         if password != confirm_password:
             return render_template("signup.html", error="Passwords do not match")
-        user = User.query.filter_by(username = username).first()
-        if user:
+        sql = "SELECT username FROM users WHERE username = %s";
+        value = (username,)
+        cursor.execute(sql, value)
+        result = cursor.fetchall()
+        if len(result) > 0:
             return render_template("signup.html", error="Username already exists")
-        new_user = User(username = username, password = password)
-        db.session.add(new_user)
-        db.session.commit()
+        else:
+            sql = "INSERT INTO users(username, password) VALUES (%s, %s)"
+            values =[username,password]
+            cursor.execute(sql, values)
+            db.commit()
         session["username"] = username
         return redirect("/")
     else:
