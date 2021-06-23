@@ -1,7 +1,3 @@
-"""
-This script runs the application using a development server.
-It contains the definition of routes and views for the application.
-"""
 from flask import Flask, render_template, request, redirect, session
 import mysql.connector
 import gunicorn
@@ -24,7 +20,7 @@ cursor = db.cursor()
 
 cursor.execute("CREATE TABLE IF NOT EXISTS users (id INT AUTO_INCREMENT PRIMARY KEY, username VARCHAR(50), password VARCHAR(50))")
 cursor.execute("CREATE TABLE IF NOT EXISTS users (id INT AUTO_INCREMENT PRIMARY KEY, host VARCHAR(100), description VARCHAR (255), day VARCHAR (50), time VARCHAR(20), status VARCHAR(20))")
-db.commit
+db.commit()
 
 
 @app.route("/")
@@ -40,11 +36,38 @@ def index():
     else:
         return render_template("index.html")
 
+@app.route("/home")
+def logout():
+    session.pop("username", None)
+    return render_template("home.html")
+
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+  if request.method == "POST":
+      username = request.form.get("username")
+      password = request.form.get("password")
+      
+      sql = "SELECT username FROM users WHERE username = %s AND password = %s";
+      value = (username, password)
+      cursor.execute(sql, value)
+
+      result = cursor.fetchall()
+
+      if user and (password == user.password):
+          session["username"] = username
+          return redirect("/")
+      else:
+          return render_template("home.html", error = "Invalid Username or Password")
+  else:
+      render_template("home.html")
+
+
 @app.route("/signup", methods=["GET", "POST"])
 def signup():
     if request.method == "POST":
         username = request.form.get("username")
-        passsword = request.form.get("password")
+        password = request.form.get("password")
         confirm_password = request.form["confirm-password"]
         if password != confirm_password:
             return render_template("signup.html", error="Passwords do not match")
