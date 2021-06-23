@@ -54,7 +54,7 @@ def login():
 
       result = cursor.fetchall()
 
-      if user and (password == user.password):
+      if len(result) > 0:
           session["username"] = username
           return redirect("/")
       else:
