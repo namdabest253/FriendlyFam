@@ -39,7 +39,7 @@ def index():
 @app.route("/logout")
 def logout():
     session.pop("username", None)
-    return render_template("home.html")
+    return render_template("index.html")
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -58,9 +58,9 @@ def login():
           session["username"] = username
           return redirect("/")
       else:
-          return render_template("home.html", error = "Invalid Username or Password")
+          return render_template("index.html", error = "Invalid Username or Password")
   else:
-      render_template("home.html")
+      return render_template("index.html")
 
 
 @app.route("/signup", methods=["GET", "POST"])
