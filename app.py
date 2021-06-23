@@ -36,7 +36,7 @@ def index():
     else:
         return render_template("index.html")
 
-@app.route("/home")
+@app.route("/logout")
 def logout():
     session.pop("username", None)
     return render_template("home.html")
