@@ -83,7 +83,7 @@ def signup():
             cursor.execute(sql, values)
             db.commit()
         session["username"] = username
-        return redirect("/")
+        return redirect("/home")
     else:
         return render_template("signup.html")
 
