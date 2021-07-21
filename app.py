@@ -19,7 +19,8 @@ db = mysql.connector.connect(
 cursor = db.cursor()
 
 cursor.execute("CREATE TABLE IF NOT EXISTS users (id INT AUTO_INCREMENT PRIMARY KEY, username VARCHAR(50), password VARCHAR(50))")
-cursor.execute("CREATE TABLE IF NOT EXISTS users (id INT AUTO_INCREMENT PRIMARY KEY, host VARCHAR(100), description VARCHAR (255), day VARCHAR (50), time VARCHAR(20), status VARCHAR(20))")
+#Looks like you are creating the users table twice - change this one to "events"
+cursor.execute("CREATE TABLE IF NOT EXISTS events (id INT AUTO_INCREMENT PRIMARY KEY, host VARCHAR(100), description VARCHAR (255), day VARCHAR (50), time VARCHAR(20), status VARCHAR(20))")
 db.commit()
 
 
@@ -29,10 +30,11 @@ def index():
         sql = "SELECT host, description, day, time, status FROM events"
         cursor.execute(sql)
         results = cursor.fetchall()
+        #No forward slash needed when we render home.html!
         if len(results) == 0:
-            return render_template("/home.html", user = session["username"])
+            return render_template("home.html", user = session["username"])
         else:
-            return render_template("/home.html", user = session["username"], list=results)
+            return render_template("home.html", user = session["username"], list=results)
     else:
         return render_template("index.html")
 
@@ -58,9 +60,9 @@ def login():
           session["username"] = username
           return redirect("/")
       else:
-          return render_template("index.html", error = "Invalid Username or Password")
+          return render_template("home.html", error = "Invalid Username or Password")
   else:
-      return render_template("index.html")
+      return render_template("home.html")
 
 
 @app.route("/signup", methods=["GET", "POST"])
@@ -103,6 +105,7 @@ def add():
     else:
         return render_template("add.html", user = session["username"])
 
+#Double check this route, you don't appear to be using your results variable
 @app.route("/myevents")
 def myEvents():
     sql = "SELECT host, description, day, time, status FROM events WHERE host = %s"
@@ -112,7 +115,8 @@ def myEvents():
     if len(result) == 0:
         return render_template("myevents.html", user = session["username"])
     else:
-        return render_template("myevents.html", user-session["username"])
+        #user-session is probably meant to be user = session!
+        return render_template("myevents.html", user = session["username"])
 
 @app.route("/cancel/<int:id>")
 def editEvent(id):
@@ -141,8 +145,6 @@ def updateEvent(id):
         return redirect("/myevents")
     else:
         return render_template("edit.html", user = session["username"], event = result)
-
-
 
 if __name__ == '__main__':
     app.run()
