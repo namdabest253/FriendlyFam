@@ -19,20 +19,21 @@ db = mysql.connector.connect(
 cursor = db.cursor()
 
 cursor.execute("CREATE TABLE IF NOT EXISTS users (id INT AUTO_INCREMENT PRIMARY KEY, username VARCHAR(50), password VARCHAR(50))")
-cursor.execute("CREATE TABLE IF NOT EXISTS users (id INT AUTO_INCREMENT PRIMARY KEY, host VARCHAR(100), description VARCHAR (255), day VARCHAR (50), time VARCHAR(20), status VARCHAR(20))")
+cursor.execute("CREATE TABLE IF NOT EXISTS events (id INT AUTO_INCREMENT PRIMARY KEY, host VARCHAR(100), description VARCHAR (255), day VARCHAR (50), time VARCHAR(20), status VARCHAR(20))")
 db.commit()
 
 
 @app.route("/")
 def index():
     if "username" in session:
-        sql = "SELECT host, description, day, time, status FROM events"
+        #sql = "SELECT host, description, day, time, status FROM events"
+        sql = "SELECT host, description, day, time, SELECT * FROM events"
         cursor.execute(sql)
         results = cursor.fetchall()
         if len(results) == 0:
-            return render_template("/home.html", user = session["username"])
+            return render_template("home.html", user = session["username"])
         else:
-            return render_template("/home.html", user = session["username"], list=results)
+            return render_template("home.html", user = session["username"], list=results)
     else:
         return render_template("index.html")
 
@@ -58,9 +59,9 @@ def login():
           session["username"] = username
           return redirect("/")
       else:
-          return render_template("index.html", error = "Invalid Username or Password")
+          return render_template("home.html", error = "Invalid Username or Password")
   else:
-      return render_template("index.html")
+      return render_template("home.html")
 
 
 @app.route("/signup", methods=["GET", "POST"])
@@ -83,7 +84,7 @@ def signup():
             cursor.execute(sql, values)
             db.commit()
         session["username"] = username
-        return redirect("/home")
+        return redirect("/")
     else:
         return render_template("signup.html")
 
@@ -96,7 +97,7 @@ def add():
         day = request.form.get("day")
         time = request.form.get("time")
         sql = "INSERT INTO events(host, description, day, time, status) VALUES(%s, %s, %s, %s, 'Scheduled')"
-        values = (session["username"], description, day, time)
+        values = (session["username"], description, day, time,)
         cursor.execute(sql, values)
         db.commit()
         return redirect("/myevents")
@@ -105,14 +106,15 @@ def add():
 
 @app.route("/myevents")
 def myEvents():
-    sql = "SELECT host, description, day, time, status FROM events WHERE host = %s"
+#    sql = "SELECT host, description, day, time, status FROM events WHERE host = %s"
+    sql = "SELECT host, description, day, time, status FROM events WHERE id = %s"
     values = (session["username"])
     cursor.execute(sql, values)
     result = cursor.fetchall()
     if len(result) == 0:
         return render_template("myevents.html", user = session["username"])
     else:
-        return render_template("myevents.html", user-session["username"])
+        return render_template("myevents.html", user = session["username"])
 
 @app.route("/cancel/<int:id>")
 def editEvent(id):
@@ -135,7 +137,7 @@ def updateEvent(id):
         time = request.form.get("time")
         status = request.form.get("status")
         sql = "UPDATE events SET description = %s, day = %s, time = %s, status = %s WHERE id = %s"
-        values = (description, day, time, status, id)
+        values = (description, day, time, status, id,)
         cursor.execute(sql, values)
         db.commit()
         return redirect("/myevents")
